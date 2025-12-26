@@ -22,6 +22,6 @@ export class Login {
     this.authService.logout();
     console.log('Logout ejecutado');
   }
-
+  //este es un mensaje de prueba
 }
 
