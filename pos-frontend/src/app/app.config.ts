@@ -1,23 +1,27 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
+import { AuthStore } from './core/stores/auth.store';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAnimations(),
-    provideHttpClient(), // 👈 necesario para AuthService
-    {
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthInterceptor,
-    multi: true
-    } 
-  ]
+    provideHttpClient(withInterceptors([authInterceptor])),
+
+    provideAppInitializer(() => {
+      const store = inject(AuthStore);
+
+      if (store.isAuthenticated()) {
+        return store.loadMe(); // ✅ Observable
+      }
+
+      // ✅ retorna void (nada), NO null
+      return;
+    }),
+  ],
 };

@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
+import { AuthStore } from '../../../core/stores/auth.store';
+
 
 @Component({
   selector: 'app-login',
@@ -10,18 +13,41 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class Login {
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService, 
+    private store: AuthStore,
+    private router: Router
+  ) {}
 
   probarLogin() {
-    this.authService.login('admin', '1234').subscribe(res => {
-    localStorage.setItem('token', res.token);
-    console.log('Token guardado');
+    this.authService.login('admin', '1234').subscribe({
+      next: (res) => {
+        localStorage.setItem('token', res.token);
+
+        // 🔽 Carga el contexto
+        this.store.loadMe().subscribe({
+          next: () => {
+            // 🚀 REDIRECCIÓN
+            this.router.navigate(['/dashboard']);
+          }
+        });
+      },
+      error: err => console.error('LOGIN ERROR:', err)
     });
   }
+
+
+  probarMe() {
+    this.store.loadMe().subscribe();
+  }
+
+
   logout() {
-    this.authService.logout();
+    this.store.clear();
     console.log('Logout ejecutado');
   }
-  //este es un mensaje de prueba
+
+
+
 }
 

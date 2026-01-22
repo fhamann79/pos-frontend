@@ -1,0 +1,15 @@
+<h1>Dashboard (validación)</h1>
+
+<div *ngIf="!loaded()">Cargando...</div>
+
+<div *ngIf="loaded() && me()">
+  <p><strong>Usuario:</strong> {{ me()!.username }}</p>
+  <p><strong>CompanyId:</strong> {{ me()!.companyId }}</p>
+  <p><strong>EstablishmentId:</strong> {{ me()!.establishmentId }}</p>
+
+  <button (click)="logout()">Logout</button>
+</div>
+
+<div *ngIf="loaded() && !me()">
+  <p>No autenticado (sin contexto).</p>
+</div>
