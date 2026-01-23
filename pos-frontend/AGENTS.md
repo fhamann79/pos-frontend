@@ -1,27 +1,24 @@
 # AGENTS.md
 
-Este archivo define **reglas, estándares y flujos de trabajo** para que Codex (y cualquier colaborador) pueda trabajar correctamente en el proyecto POS.
+Este archivo define **reglas, estándares y flujos de trabajo** para que Codex (y cualquier colaborador) pueda trabajar correctamente en el frontend POS.
 
 ---
 
-## PARTE B — POS FRONTEND (ANGULAR)
+## Stack técnico
 
-### 1. Stack técnico
+- Framework: Angular (standalone APIs)
+- Lenguaje: TypeScript (tipado estricto)
+- UI: PrimeNG + PrimeIcons
+- Estilos: SCSS
+- HTTP: HttpClient
+- Estado: RxJS + Signals (cuando aplique)
+- Auth: JWT (token en `localStorage`)
 
-* Framework: Angular (especificar versión)
-* Lenguaje: TypeScript
-* Estilos: CSS / SCSS
-* HTTP: HttpClient
-* Estado: RxJS (no lógica pesada en componentes)
+---
 
-### 2. Principios obligatorios
+## Estructura real del repositorio
 
-* Arquitectura por **feature folders**
-* Componentes delgados
-* Servicios con toda la lógica de negocio
-* No llamadas HTTP directas desde componentes
-
-### 3. Estructura esperada
+**NO cambiar la estructura sin ticket explícito.** La convención actual usa `modules/`, no `features/`.
 
 ```
 pos-frontend/
@@ -29,42 +26,58 @@ pos-frontend/
  │   ├─ core/
  │   │   ├─ services/
  │   │   ├─ guards/
- │   │   └─ interceptors/
- │   ├─ features/
- │   │   ├─ productos/
- │   │   │   ├─ pages/
- │   │   │   ├─ components/
- │   │   │   ├─ services/
- │   │   │   └─ models/
+ │   │   ├─ interceptors/
+ │   │   ├─ models/
+ │   │   └─ stores/
+ │   ├─ modules/
+ │   │   ├─ auth/
+ │   │   ├─ dashboard/
+ │   │   ├─ inventario/
  │   │   ├─ ventas/
- │   │   └─ clientes/
+ │   │   ├─ pos/
+ │   │   └─ sri/
  │   └─ shared/
  │       ├─ components/
+ │       ├─ directives/
  │       └─ pipes/
 ```
 
-### 4. Convenciones
+---
 
-* Componentes: `producto-list.component.ts`
-* Servicios: `productos.service.ts`
-* Modelos: `producto.model.ts`
-* Interfaces alineadas al backend
+## Principios obligatorios
 
-### 5. Comunicación con API
+- **Mantener la convención actual basada en `modules/`.**
+- **Componentes delgados:** sin lógica de negocio pesada ni llamadas HTTP directas.
+- **Servicios con lógica:** la lógica vive en `core/services` o en `services` dentro del módulo correspondiente.
+- **Tipado estricto:** prohibido usar `any`.
+- **Auth JWT:**
+  - El interceptor agrega `Authorization: Bearer <token>`.
+  - Las rutas protegidas usan `AuthGuard`.
+- **Uso consistente de PrimeNG/PrimeIcons:** no mezclar librerías UI en este repo sin aprobación.
+- **Backend URL centralizada o claramente documentada:**
+  - Actualmente está en `src/app/core/services/auth.ts` (variable `api`).
+  - Si se mueve a `environment`, debe documentarse de inmediato.
 
-* Base URL centralizada en environment
-* Manejo de errores en interceptor
-* Respuestas mapeadas (no usar `any`)
+---
 
-### 6. Tests
+## Convenciones de nombres
 
-* Tests mínimos para:
+- Componentes: `venta-list.component.ts`
+- Servicios: `ventas.service.ts`
+- Modelos/Interfaces: `venta.model.ts`
+- Rutas y módulos deben reflejar el dominio (`modules/ventas`, `modules/inventario`, etc.).
 
-  * Servicios
-  * Componentes críticos
-* Framework: Jasmine / Karma
+---
 
-### 7. Comandos comunes
+## Tests y calidad
+
+- Tests mínimos para servicios y componentes críticos.
+- Framework actual: Angular CLI (Jasmine/Karma si aplica en el proyecto).
+- Mantener consistencia con el resto del código.
+
+---
+
+## Comandos comunes
 
 ```bash
 npm install
@@ -75,24 +88,24 @@ ng test
 
 ---
 
-## REGLAS PARA CODEX / IA
+## Cómo debe trabajar Codex en este repo
 
-* Antes de escribir código: **explicar el enfoque**
-* No romper código existente
-* Mantener estilo y convenciones
-* Agregar tests cuando aplique
-* Explicar cada cambio importante
-* Si hay duda: preguntar antes de asumir
+- **Un PR por ticket.**
+- **No refactor masivo.**
+- **No cambiar la estructura de carpetas** sin ticket explícito.
+- **No romper código existente.**
+- **Siempre entregar pasos de prueba** (ejemplo: `ng build`, `ng serve`).
+- Explicar el enfoque cuando sea necesario y documentar decisiones importantes.
 
 ---
 
-## OBJETIVO DEL PROYECTO
+## Objetivo del proyecto
 
 Construir un **POS sólido, mantenible y escalable**, priorizando:
 
-* Claridad
-* Seguridad
-* Facilidad de evolución
-* Aprendizaje del desarrollador (Fernando)
+- Claridad
+- Seguridad
+- Facilidad de evolución
+- Aprendizaje del equipo
 
 Este archivo es obligatorio y debe respetarse en cada cambio.
