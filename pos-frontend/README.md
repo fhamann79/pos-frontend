@@ -37,7 +37,7 @@ ng build
 ng test
 ```
 
-## Conexion con backend
+## Configuracion de backend URL
 
 - La URL base del backend esta definida en src/app/core/services/auth.ts.
 - Variable: private api = 'https://localhost:7096/api/auth';
@@ -49,8 +49,3 @@ ng test
 2. Contexto: luego se llama a /api/auth/me mediante AuthStore.loadMe().
 3. Interceptor: agrega Authorization: Bearer <token> a cada request.
 4. Guard: AuthGuard protege rutas verificando el token.
-
-## Notas
-
-- UI: PrimeNG y PrimeIcons.
-- Estilos: SCSS.

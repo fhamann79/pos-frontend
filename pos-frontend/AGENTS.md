@@ -38,7 +38,7 @@ pos-frontend/
       pipes/
 ```
 
-## Reglas
+## Principios y reglas
 
 - Mantener la convencion actual basada en modules/.
 - Componentes delgados: sin logica de negocio pesada ni llamadas HTTP directas.
@@ -60,7 +60,7 @@ pos-frontend/
 - No romper codigo existente.
 - Entregar pasos de prueba (ng build, ng serve).
 
-## Comandos comunes
+## Comandos de validacion
 
 ```bash
 npm install
