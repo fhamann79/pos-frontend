@@ -1,89 +1,51 @@
-# POS Frontend – Angular
+# POS Frontend - Angular
 
-Frontend del sistema POS + Inventario + Facturación electrónica (Ecuador).
-
----
-
-## Tecnologías
-- Angular 18+
-- TypeScript
-- PrimeNG
-- PrimeIcons
-- SCSS
-- JWT Authentication
-
----
+Frontend del sistema POS + Inventario + Facturacion electronica (Ecuador).
 
 ## Requisitos
+
 - Node.js LTS
-- NPM
-- Angular CLI
-- VS Code
+- npm (el repo usa npm 11.x)
+- Angular CLI 21 (npm install -g @angular/cli)
 
----
-
-## Instalación
+## Instalacion
 
 Desde la carpeta del proyecto:
 
+```bash
 npm install
+```
 
----
-
-## Ejecutar el proyecto
+## Ejecutar
 
 Levantar servidor de desarrollo:
 
+```bash
 ng serve
+```
 
 Abrir en el navegador:
 
+```
 http://localhost:4200
+```
 
----
+## Scripts
 
-## Conexión con Backend
+```bash
+ng build
+ng test
+```
 
-El frontend consume la API en:
+## Configuracion de backend URL
 
-https://localhost:7096
+- La URL base del backend esta definida en src/app/core/services/auth.ts.
+- Variable: private api = 'https://localhost:7096/api/auth';
+- Si se migra a environment, documentar la nueva ubicacion.
 
-(Configurado temporalmente en los servicios)
+## Flujo de autenticacion (breve)
 
----
-
-## Login de prueba (temporal)
-
-Usuario: admin  
-Password: 1234  
-
-Este login es solo para validar la comunicación Front ↔ Back.
-
----
-
-## Estructura del proyecto
-
-src/app
-- core
-  - services
-  - guards
-  - interceptors
-  - models
-- modules
-  - auth
-  - dashboard
-  - inventario
-  - ventas
-  - pos
-  - sri
-- shared
-  - components
-  - pipes
-  - directives
-
----
-
-## Notas
-- No se usan formularios reactivos aún
-- No se usa JWT real todavía
-- Seguridad completa se implementará en siguientes etapas
+1. Login: el componente de login ejecuta AuthService.login('admin', '1234') y guarda el token en localStorage.
+2. Contexto: luego se llama a /api/auth/me mediante AuthStore.loadMe().
+3. Interceptor: agrega Authorization: Bearer <token> a cada request.
+4. Guard: AuthGuard protege rutas verificando el token.
