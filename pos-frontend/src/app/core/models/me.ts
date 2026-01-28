@@ -3,4 +3,5 @@ export interface MeResponse {
   username: string;
   companyId: string;
   establishmentId: string;
+  emissionPointId: number;
 }

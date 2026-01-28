@@ -3,4 +3,5 @@ export interface AuthContext {
   username: string;
   companyId: string;
   establishmentId: string;
+  emissionPointId: number;
 }

@@ -28,6 +28,7 @@ export class AuthStore {
     return this.auth.me().pipe(
       tap((res) => {
         this._me.set(res);
+        this.auth.saveContext(res);
         this._loaded.set(true);
       }),
       catchError((err) => {
