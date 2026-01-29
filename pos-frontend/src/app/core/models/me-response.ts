@@ -1,6 +1,8 @@
 export interface MeResponse {
   userId: string;
   username: string;
-  companyId: string;
-  establishmentId: string;
+  companyId: number;
+  establishmentId: number;
+  emissionPointId: number;
 }
+

@@ -30,6 +30,7 @@ export class AuthService {
       username: me.username,
       companyId: me.companyId,
       establishmentId: me.establishmentId,
+      emissionPointId: me.emissionPointId,
     };
     localStorage.setItem(this.authContextKey, JSON.stringify(context));
   }
