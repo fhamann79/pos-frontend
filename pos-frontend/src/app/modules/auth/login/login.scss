@@ -1,0 +1,23 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+:host ::ng-deep .login-card {
+  width: min(430px, 100%);
+
+  .p-card {
+    border-radius: 1rem;
+    border: 1px solid var(--app-border);
+    box-shadow: var(--app-shadow-sm);
+  }
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
