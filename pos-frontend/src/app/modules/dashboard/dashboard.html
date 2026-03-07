@@ -7,6 +7,11 @@
     <p-tag value="Foundation FE-400" severity="info"></p-tag>
   </header>
 
+
+  @if (accessWarning()) {
+    <p-message severity="warn" [text]="accessWarning()"></p-message>
+  }
+
   @if (!loaded()) {
     <p-card>
       <p>Cargando contexto del usuario...</p>

@@ -1,29 +1,40 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
 import { AuthStore } from '../../core/stores/auth.store';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, TagModule],
+  imports: [CommonModule, CardModule, ButtonModule, TagModule, MessageModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private store = inject(AuthStore);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   me = this.store.me;
   loaded = this.store.loaded;
+  readonly accessWarning = signal('');
 
   ngOnInit() {
     if (this.store.isAuthenticated()) {
       this.store.loadMe().subscribe();
     }
+
+    this.route.queryParamMap.subscribe((params) => {
+      this.accessWarning.set(
+        params.get('message') === 'catalog-denied'
+          ? 'No tienes permisos para acceder a Catálogo.'
+          : ''
+      );
+    });
   }
 
   logout() {

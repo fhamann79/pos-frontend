@@ -4,4 +4,6 @@ export interface AuthContext {
   companyId: number;
   establishmentId: number;
   emissionPointId: number;
+  roleCode: string;
+  permissions: string[];
 }

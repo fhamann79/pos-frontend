@@ -31,6 +31,8 @@ export class AuthService {
       companyId: me.companyId,
       establishmentId: me.establishmentId,
       emissionPointId: me.emissionPointId,
+      roleCode: me.roleCode,
+      permissions: me.permissions,
     };
     localStorage.setItem(this.authContextKey, JSON.stringify(context));
   }

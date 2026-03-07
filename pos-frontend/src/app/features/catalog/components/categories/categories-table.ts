@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -33,6 +33,8 @@ import { CategoryDialog, CategoryDialogSubmit } from './category-dialog';
   styleUrl: './categories-table.scss',
 })
 export class CategoriesTable implements OnInit {
+  @Input() canWrite = false;
+
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -66,11 +68,19 @@ export class CategoriesTable implements OnInit {
   }
 
   openCreateDialog(): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.selectedCategory = null;
     this.dialogVisible = true;
   }
 
   openEditDialog(category: Category): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.selectedCategory = category;
     this.dialogVisible = true;
   }
@@ -83,6 +93,10 @@ export class CategoriesTable implements OnInit {
   }
 
   submitDialog(event: CategoryDialogSubmit): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     if (event.mode === 'create') {
       this.categoryService.create(event.payload).subscribe({
         next: () => {
@@ -110,6 +124,10 @@ export class CategoriesTable implements OnInit {
   }
 
   confirmDelete(category: Category): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.confirmationService.confirm({
       header: 'Eliminar categoría',
       message: `¿Deseas eliminar la categoría "${category.name}"?`,
