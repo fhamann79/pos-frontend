@@ -1,6 +1,6 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -36,6 +36,8 @@ import { ProductDialog, ProductDialogSubmit } from './product-dialog';
   styleUrl: './products-table.scss',
 })
 export class ProductsTable implements OnInit {
+  @Input() canWrite = false;
+
   private readonly productService = inject(ProductService);
   private readonly categoryService = inject(CategoryService);
   private readonly messageService = inject(MessageService);
@@ -87,11 +89,19 @@ export class ProductsTable implements OnInit {
   }
 
   openCreateDialog(): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.selectedProduct = null;
     this.dialogVisible = true;
   }
 
   openEditDialog(product: Product): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.selectedProduct = product;
     this.dialogVisible = true;
   }
@@ -104,6 +114,10 @@ export class ProductsTable implements OnInit {
   }
 
   submitDialog(event: ProductDialogSubmit): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     if (event.mode === 'create') {
       this.productService.create(event.payload).subscribe({
         next: () => {
@@ -131,6 +145,10 @@ export class ProductsTable implements OnInit {
   }
 
   confirmDelete(product: Product): void {
+    if (!this.canWrite) {
+      return;
+    }
+
     this.confirmationService.confirm({
       header: 'Eliminar producto',
       message: `¿Deseas eliminar el producto "${product.name}"?`,

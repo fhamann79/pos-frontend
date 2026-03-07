@@ -4,4 +4,6 @@ export interface MeResponse {
   companyId: number;
   establishmentId: number;
   emissionPointId: number;
+  roleCode: string;
+  permissions: string[];
 }

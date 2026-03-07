@@ -11,7 +11,7 @@
     </div>
 
     <nav class="sidebar__nav">
-      @for (item of menuItems; track item.label) {
+      @for (item of menuItems(); track item.label) {
         @if (item.disabled) {
           <button type="button" class="nav-item nav-item--disabled" disabled>
             <i [class]="item.icon"></i>
@@ -52,7 +52,7 @@
           <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
           <div>
             <strong>{{ username() }}</strong>
-            <small>Administrador</small>
+            <small>{{ roleLabel() }}</small>
           </div>
           <p-button
             label="Salir"

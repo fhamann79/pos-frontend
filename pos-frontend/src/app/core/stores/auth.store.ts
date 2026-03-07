@@ -7,21 +7,20 @@ import { catchError, of, tap } from 'rxjs';
 export class AuthStore {
   private auth = inject(AuthService);
 
-  // Estado
   private _me = signal<MeResponse | null>(null);
   private _loaded = signal(false);
 
-  // Selectores (lo que el resto de la app consume)
   me = computed(() => this._me());
   loaded = computed(() => this._loaded());
   isAuthenticated = computed(() => !!localStorage.getItem('token'));
 
-  // helpers (opcionales pero útiles)
   companyId = computed(() => this._me()?.companyId ?? null);
   establishmentId = computed(() => this._me()?.establishmentId ?? null);
+  emissionPointId = computed(() => this._me()?.emissionPointId ?? null);
   username = computed(() => this._me()?.username ?? null);
+  roleCode = computed(() => this._me()?.roleCode ?? null);
+  permissions = computed(() => this._me()?.permissions ?? []);
 
-  /** Carga el contexto del usuario desde /api/auth/me */
   loadMe() {
     this._loaded.set(false);
 
@@ -31,8 +30,7 @@ export class AuthStore {
         this.auth.saveContext(res);
         this._loaded.set(true);
       }),
-      catchError((err) => {
-        // Si falla (401/403), limpiamos sesión
+      catchError(() => {
         this.clear();
         this._loaded.set(true);
         return of(null);
@@ -40,12 +38,10 @@ export class AuthStore {
     );
   }
 
-  /** Limpia sesión: token + contexto */
   clear() {
     localStorage.removeItem('token');
-    this.auth.clearContext(); // 👈 limpia auth_context
+    this.auth.clearContext();
     this._me.set(null);
     this._loaded.set(false);
   }
-
 }
