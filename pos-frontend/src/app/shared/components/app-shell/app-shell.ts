@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { AuthStore } from '../../../core/stores/auth.store';
 import { PermissionService } from '../../../core/services/permission.service';
-import { PERMISSIONS } from '../../../core/constants/permissions';
+import { NavigationItemConfig, NAVIGATION_ITEMS } from '../../../core/constants/feature-access';
 
 interface MenuItem {
   label: string;
@@ -39,25 +39,16 @@ export class AppShell {
   readonly username = computed(() => this.me()?.username ?? 'Usuario');
   readonly roleLabel = computed(() => this.me()?.roleCode ?? 'Sin rol');
 
-  readonly canReadCatalog = computed(() =>
-    this.permissionService.hasAnyPermission([
-      PERMISSIONS.catalogCategoriesRead,
-      PERMISSIONS.catalogProductsRead,
-    ])
+  readonly menuItems = computed<MenuItem[]>(() =>
+    NAVIGATION_ITEMS
+      .filter((item) => this.isVisible(item))
+      .map((item) => ({
+        label: item.label,
+        icon: item.icon,
+        route: item.route,
+        disabled: item.disabled ?? false,
+      }))
   );
-
-  readonly menuItems = computed<MenuItem[]>(() => {
-    const baseItems: MenuItem[] = [
-      { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/dashboard', disabled: false },
-      { label: 'Ventas', icon: 'pi pi-shopping-cart', route: null, disabled: true },
-    ];
-
-    if (this.canReadCatalog()) {
-      baseItems.splice(1, 0, { label: 'Catálogo', icon: 'pi pi-box', route: '/catalog', disabled: false });
-    }
-
-    return baseItems;
-  });
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update((value) => !value);
@@ -66,5 +57,9 @@ export class AppShell {
   logout(): void {
     this.store.clear();
     this.router.navigateByUrl('/login');
+  }
+
+  private isVisible(item: NavigationItemConfig): boolean {
+    return this.permissionService.canAccess(item);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth';
 import { AuthStore } from '../stores/auth.store';
+import { PermissionRequirement } from '../constants/feature-access';
 
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
@@ -21,13 +22,40 @@ export class PermissionService {
     return permissions.every((permission) => currentPermissions.includes(permission));
   }
 
-  private getPermissions(): string[] {
-    const mePermissions = this.authStore.me()?.permissions;
-
-    if (Array.isArray(mePermissions)) {
-      return mePermissions;
+  canAccess(requirement: PermissionRequirement): boolean {
+    if (!requirement.requiredPermissions?.length) {
+      return true;
     }
 
-    return this.authService.getContext()?.permissions ?? [];
+    const mode = requirement.matchMode ?? 'any';
+
+    return mode === 'all'
+      ? this.hasAllPermissions(requirement.requiredPermissions)
+      : this.hasAnyPermission(requirement.requiredPermissions);
+  }
+
+  private getPermissions(): string[] {
+    const storePermissions = this.normalizePermissions(this.authStore.permissions());
+
+    if (storePermissions.length > 0) {
+      return storePermissions;
+    }
+
+    return this.normalizePermissions(this.authService.getContext()?.permissions);
+  }
+
+  private normalizePermissions(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return Array.from(
+      new Set(
+        value
+          .filter((permission): permission is string => typeof permission === 'string')
+          .map((permission) => permission.trim())
+          .filter((permission) => permission.length > 0)
+      )
+    );
   }
 }

@@ -39,6 +39,16 @@ export class AuthService {
 
   getContext(): AuthContext | null {
     const raw = localStorage.getItem(this.authContextKey);
-    return raw ? JSON.parse(raw) : null;
+
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as AuthContext;
+    } catch {
+      this.clearContext();
+      return null;
+    }
   }
 }
