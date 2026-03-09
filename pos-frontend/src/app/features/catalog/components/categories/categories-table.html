@@ -13,9 +13,11 @@
         />
       </div>
     </ng-template>
-    <ng-template #end>
-      <p-button label="Nueva Categoría" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
-    </ng-template>
+    @if (canWrite) {
+      <ng-template #end>
+        <p-button label="Nueva Categoría" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
+      </ng-template>
+    }
   </p-toolbar>
 
   @if (errorMessage()) {
@@ -51,7 +53,9 @@
         <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
         <th pSortableColumn="name">Nombre <p-sortIcon field="name"></p-sortIcon></th>
         <th pSortableColumn="isActive">Estado <p-sortIcon field="isActive"></p-sortIcon></th>
-        <th>Acciones</th>
+        @if (canWrite) {
+          <th>Acciones</th>
+        }
       </tr>
     </ng-template>
 
@@ -62,21 +66,25 @@
         <td>
           <p-tag [severity]="category.isActive ? 'success' : 'danger'" [value]="category.isActive ? 'Activo' : 'Inactivo'"></p-tag>
         </td>
-        <td>
-          <div class="actions">
-            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (onClick)="openEditDialog(category)"></p-button>
-            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" (onClick)="confirmDelete(category)"></p-button>
-          </div>
-        </td>
+        @if (canWrite) {
+          <td>
+            <div class="actions">
+              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (onClick)="openEditDialog(category)"></p-button>
+              <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" (onClick)="confirmDelete(category)"></p-button>
+            </div>
+          </td>
+        }
       </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="4">
+        <td [attr.colspan]="canWrite ? 4 : 3">
           <div class="empty-state">
             <span>No hay registros</span>
-            <p-button label="Crear" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
+            @if (canWrite) {
+              <p-button label="Crear" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
+            }
           </div>
         </td>
       </tr>
@@ -84,9 +92,11 @@
   </p-table>
 </div>
 
-<app-category-dialog
-  [visible]="dialogVisible"
-  [category]="selectedCategory"
-  (visibleChange)="onDialogVisibleChange($event)"
-  (submitForm)="submitDialog($event)"
-></app-category-dialog>
+@if (canWrite) {
+  <app-category-dialog
+    [visible]="dialogVisible"
+    [category]="selectedCategory"
+    (visibleChange)="onDialogVisibleChange($event)"
+    (submitForm)="submitDialog($event)"
+  ></app-category-dialog>
+}

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { catalogAccessGuard } from './core/guards/catalog-access.guard';
 
 export const routes: Routes = [
   {
@@ -16,7 +17,7 @@ export const routes: Routes = [
 
   {
     path: 'catalog',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, catalogAccessGuard],
     loadComponent: () =>
       import('./features/catalog/pages/catalog-page/catalog-page').then(m => m.CatalogPage)
   },

@@ -31,12 +31,24 @@ export class AuthService {
       companyId: me.companyId,
       establishmentId: me.establishmentId,
       emissionPointId: me.emissionPointId,
+      roleCode: me.roleCode,
+      permissions: me.permissions,
     };
     localStorage.setItem(this.authContextKey, JSON.stringify(context));
   }
 
   getContext(): AuthContext | null {
     const raw = localStorage.getItem(this.authContextKey);
-    return raw ? JSON.parse(raw) : null;
+
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as AuthContext;
+    } catch {
+      this.clearContext();
+      return null;
+    }
   }
 }
