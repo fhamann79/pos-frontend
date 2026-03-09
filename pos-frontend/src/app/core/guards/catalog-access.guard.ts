@@ -16,7 +16,5 @@ export const catalogAccessGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/dashboard'], {
-    queryParams: { message: 'catalog-denied' },
-  });
+  return router.createUrlTree(['/dashboard']);
 };
