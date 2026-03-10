@@ -3,4 +3,6 @@ export const PERMISSIONS = {
   catalogCategoriesWrite: 'CATALOG_CATEGORIES_WRITE',
   catalogProductsRead: 'CATALOG_PRODUCTS_READ',
   catalogProductsWrite: 'CATALOG_PRODUCTS_WRITE',
+  operationalStructureRead: 'OP_STRUCTURE_READ',
+  operationalStructureWrite: 'OP_STRUCTURE_WRITE',
 } as const;

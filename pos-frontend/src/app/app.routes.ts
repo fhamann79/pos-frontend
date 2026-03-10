@@ -1,33 +1,38 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { catalogAccessGuard } from './core/guards/catalog-access.guard';
+import { operationalStructureAccessGuard } from './core/guards/operational-structure-access.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./modules/auth/login/login').then(m => m.Login)
+    loadComponent: () => import('./modules/auth/login/login').then((m) => m.Login),
   },
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./modules/dashboard/dashboard').then(m => m.Dashboard)
+    loadComponent: () => import('./modules/dashboard/dashboard').then((m) => m.Dashboard),
   },
-
   {
     path: 'catalog',
     canActivate: [AuthGuard, catalogAccessGuard],
+    loadComponent: () => import('./features/catalog/pages/catalog-page/catalog-page').then((m) => m.CatalogPage),
+  },
+  {
+    path: 'operational-structure',
+    canActivate: [AuthGuard, operationalStructureAccessGuard],
     loadComponent: () =>
-      import('./features/catalog/pages/catalog-page/catalog-page').then(m => m.CatalogPage)
+      import('./features/operational-structure/pages/operational-structure-page/operational-structure-page').then(
+        (m) => m.OperationalStructurePage
+      ),
   },
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: '**',
-    redirectTo: 'login'
-  }
+    redirectTo: 'login',
+  },
 ];

@@ -15,11 +15,13 @@ export interface NavigationItemConfig extends PermissionRequirement {
 }
 
 export const CATALOG_ACCESS_REQUIREMENT: PermissionRequirement = {
-  requiredPermissions: [
-    PERMISSIONS.catalogCategoriesRead,
-    PERMISSIONS.catalogProductsRead,
-  ],
+  requiredPermissions: [PERMISSIONS.catalogCategoriesRead, PERMISSIONS.catalogProductsRead],
   matchMode: 'any',
+};
+
+export const OPERATIONAL_STRUCTURE_ACCESS_REQUIREMENT: PermissionRequirement = {
+  requiredPermissions: [PERMISSIONS.operationalStructureRead],
+  matchMode: 'all',
 };
 
 export const NAVIGATION_ITEMS: NavigationItemConfig[] = [
@@ -33,6 +35,12 @@ export const NAVIGATION_ITEMS: NavigationItemConfig[] = [
     icon: 'pi pi-box',
     route: '/catalog',
     ...CATALOG_ACCESS_REQUIREMENT,
+  },
+  {
+    label: 'Estructura Operativa',
+    icon: 'pi pi-sitemap',
+    route: '/operational-structure',
+    ...OPERATIONAL_STRUCTURE_ACCESS_REQUIREMENT,
   },
   {
     label: 'Ventas',
