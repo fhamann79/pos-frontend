@@ -1,0 +1,42 @@
+<p-dialog
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Detalle de venta"
+  [style]="{ width: '48rem' }"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+>
+  @if (sale) {
+    <section class="sale-head">
+      <div><strong>Venta #{{ sale.id }}</strong></div>
+      <p-tag [severity]="sale.status === 'VOIDED' ? 'danger' : 'success'" [value]="sale.status"></p-tag>
+      <small>{{ sale.createdAt | date: 'full' }}</small>
+      <p>{{ sale.notes || 'Sin notas' }}</p>
+    </section>
+
+    <p-table [value]="sale.items" size="small" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.productName }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unitPrice | currency: 'USD' }}</td>
+          <td>{{ item.lineSubtotal | currency: 'USD' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="totals">
+      <span>Subtotal: <strong>{{ sale.subtotal | currency: 'USD' }}</strong></span>
+      <span>Total: <strong>{{ sale.total | currency: 'USD' }}</strong></span>
+    </div>
+  }
+</p-dialog>

@@ -1,0 +1,48 @@
+<p-dialog
+  header="Búsqueda rápida de productos"
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '52rem' }"
+  (visibleChange)="onVisibleChange($event)"
+>
+  <div class="quick-header">
+    <span class="hint">Atajo: F2 abre esta búsqueda en cualquier momento.</span>
+    <input
+      #quickSearchInput
+      pInputText
+      type="text"
+      [(ngModel)]="query"
+      (keydown.enter)="onEnter()"
+      placeholder="Buscar por nombre y presiona Enter para agregar el primero"
+    />
+  </div>
+
+  <p-table [value]="filteredProducts" [paginator]="true" [rows]="8" size="small" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price | currency: 'USD' }}</td>
+        <td>
+          @if (product.stock > 0) {
+            <p-tag severity="success" [value]="product.stock.toString()"></p-tag>
+          } @else {
+            <p-tag severity="danger" value="Sin stock"></p-tag>
+          }
+        </td>
+        <td>
+          <p-button label="Agregar" size="small" (onClick)="onSelect(product)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

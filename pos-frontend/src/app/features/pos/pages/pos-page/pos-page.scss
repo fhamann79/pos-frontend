@@ -1,0 +1,34 @@
+.pos-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pos-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: var(--text-color-secondary);
+  }
+}
+
+.pos-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .pos-grid {
+    grid-template-columns: 1fr;
+  }
+}

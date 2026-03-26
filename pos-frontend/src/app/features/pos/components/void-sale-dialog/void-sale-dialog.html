@@ -1,0 +1,24 @@
+<p-dialog
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Anular venta"
+  [style]="{ width: '30rem' }"
+  [visible]="visible"
+  (visibleChange)="onVisibleChange($event)"
+>
+  <p>Esta acción anulará la venta seleccionada. Ingresa una razón de anulación.</p>
+
+  <textarea pInputTextarea rows="4" [(ngModel)]="reason" placeholder="Razón de anulación"></textarea>
+
+  <div class="actions">
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="onClose()"></p-button>
+    <p-button
+      label="Confirmar anulación"
+      severity="danger"
+      [disabled]="!reason.trim() || submitting"
+      [loading]="submitting"
+      (onClick)="onSubmit()"
+    ></p-button>
+  </div>
+</p-dialog>
