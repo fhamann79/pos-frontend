@@ -22,7 +22,11 @@ export class SalesHistory {
   @Output() viewDetail = new EventEmitter<number>();
   @Output() voidSale = new EventEmitter<number>();
 
-  canVoidSale(status: string): boolean {
-    return this.canVoid && status.toUpperCase() !== 'VOIDED';
+  canVoidSale(status: string | null | undefined): boolean {
+    return this.canVoid && (status ?? '').toUpperCase() !== 'VOIDED';
+  }
+
+  isVoided(status: string | null | undefined): boolean {
+    return (status ?? '').toUpperCase() === 'VOIDED';
   }
 }

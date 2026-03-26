@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
@@ -12,6 +13,7 @@ import { ProductBrowser } from '../../components/product-browser/product-browser
 import { SaleDetailDialog } from '../../components/sale-detail-dialog/sale-detail-dialog';
 import { SalesHistory } from '../../components/sales-history/sales-history';
 import { VoidSaleDialog } from '../../components/void-sale-dialog/void-sale-dialog';
+import { QuickProductSearchDialog } from '../../components/quick-product-search-dialog/quick-product-search-dialog';
 import { CartItemModel } from '../../models/cart-item.model';
 import { PosProductModel } from '../../models/pos-product.model';
 import { SaleListItemModel } from '../../models/sale-list-item.model';
@@ -24,6 +26,7 @@ import { SalesService } from '../../services/sales.service';
   standalone: true,
   imports: [
     CommonModule,
+    ButtonModule,
     ToastModule,
     ConfirmDialogModule,
     MessageModule,
@@ -32,6 +35,7 @@ import { SalesService } from '../../services/sales.service';
     SalesHistory,
     SaleDetailDialog,
     VoidSaleDialog,
+    QuickProductSearchDialog,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './pos-page.html',
@@ -67,6 +71,7 @@ export class PosPage implements OnInit {
 
   readonly voidDialogVisible = signal(false);
   readonly saleIdToVoid = signal<number | null>(null);
+  readonly quickSearchVisible = signal(false);
 
   readonly filteredProducts = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();
@@ -84,6 +89,14 @@ export class PosPage implements OnInit {
 
     if (this.canReadSales()) {
       this.loadSales();
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleShortcuts(event: KeyboardEvent): void {
+    if (event.key === 'F2' && this.canCreateSales()) {
+      event.preventDefault();
+      this.quickSearchVisible.set(true);
     }
   }
 
@@ -146,6 +159,13 @@ export class PosPage implements OnInit {
         },
       ];
     });
+  }
+
+  addFirstFilteredProduct(): void {
+    const firstProduct = this.filteredProducts()[0];
+    if (firstProduct) {
+      this.addToCart(firstProduct);
+    }
   }
 
   onQuantityChange(event: { productId: number; quantity: number }): void {
@@ -262,7 +282,9 @@ export class PosPage implements OnInit {
         this.voidSaleLoading.set(false);
         this.onVoidDialogVisibleChange(false);
         this.messageService.add({ severity: 'success', summary: 'Venta anulada', detail: 'La venta fue anulada con éxito.' });
-        this.loadSales();
+        if (this.canReadSales()) {
+          this.loadSales();
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.voidSaleLoading.set(false);
@@ -283,16 +305,60 @@ export class PosPage implements OnInit {
   }
 
   private resolveErrorMessage(error: HttpErrorResponse, fallback = 'Ocurrió un error inesperado.'): string {
-    const backendCode = typeof error.error === 'string' ? error.error : error.error?.code;
+    const backendCode = this.extractBackendCode(error);
 
     if (backendCode === 'INSUFFICIENT_STOCK') {
       return 'Stock insuficiente para completar la venta.';
+    }
+
+    if (backendCode === 'SALE_ALREADY_VOIDED') {
+      return 'La venta ya fue anulada previamente.';
+    }
+
+    if (backendCode === 'SALE_NOT_FOUND') {
+      return 'La venta no existe o ya no está disponible.';
+    }
+
+    if (backendCode === 'PRODUCT_NOT_FOUND') {
+      return 'Uno de los productos seleccionados ya no existe.';
+    }
+
+    if (backendCode === 'INVALID_SALE_ITEMS') {
+      return 'La venta contiene ítems inválidos. Revisa cantidades y precios.';
     }
 
     if (error.status === 403) {
       return 'No tienes permisos para realizar esta acción.';
     }
 
+    if (typeof error.error === 'string' && error.error.trim().length > 0) {
+      return error.error;
+    }
+
     return fallback;
+  }
+
+  private extractBackendCode(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if (typeof error.error?.code === 'string') {
+      return error.error.code;
+    }
+
+    if (typeof error.error?.errorCode === 'string') {
+      return error.error.errorCode;
+    }
+
+    if (typeof error.error?.message === 'string') {
+      return error.error.message;
+    }
+
+    if (Array.isArray(error.error?.errors) && typeof error.error.errors[0]?.code === 'string') {
+      return error.error.errors[0].code;
+    }
+
+    return '';
   }
 }

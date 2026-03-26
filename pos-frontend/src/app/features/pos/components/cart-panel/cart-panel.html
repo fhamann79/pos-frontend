@@ -70,13 +70,18 @@
     pInputTextarea
     rows="3"
     placeholder="Notas de la venta (opcional)"
+    tabindex="20"
     [ngModel]="notes"
     (ngModelChange)="notesChange.emit($event)"
   ></textarea>
 
+  <small class="shortcut-hint">Tip operativo: F2 abre búsqueda rápida de productos.</small>
+
   <p-button
+    styleClass="checkout-button"
     label="Finalizar venta"
     icon="pi pi-check"
+    tabindex="21"
     [disabled]="!canCheckout || items.length === 0 || submitting"
     [loading]="submitting"
     (onClick)="checkout.emit()"

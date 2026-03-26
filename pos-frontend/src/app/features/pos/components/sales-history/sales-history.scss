@@ -22,3 +22,9 @@
   text-align: right;
   white-space: nowrap;
 }
+
+.loading-text {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color-secondary);
+}

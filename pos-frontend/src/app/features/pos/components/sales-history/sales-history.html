@@ -8,7 +8,11 @@
     <p-message severity="error" [text]="errorMessage"></p-message>
   }
 
-  <p-table [value]="sales" [loading]="loading" [paginator]="true" [rows]="6" responsiveLayout="scroll" size="small">
+  @if (loading) {
+    <small class="loading-text">Cargando ventas recientes...</small>
+  }
+
+  <p-table [value]="sales" [paginator]="true" [rows]="6" responsiveLayout="scroll" size="small">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -24,7 +28,7 @@
         <td>#{{ sale.id }}</td>
         <td>{{ sale.createdAt | date: 'short' }}</td>
         <td>
-          <p-tag [severity]="sale.status === 'VOIDED' ? 'danger' : 'success'" [value]="sale.status"></p-tag>
+          <p-tag [severity]="isVoided(sale.status) ? 'danger' : 'success'" [value]="sale.status || 'UNKNOWN'"></p-tag>
         </td>
         <td>{{ sale.total | currency: 'USD' }}</td>
         <td>{{ sale.username || sale.userId || '-' }}</td>

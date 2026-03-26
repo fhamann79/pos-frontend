@@ -1,7 +1,18 @@
 <div class="pos-page">
   <header class="pos-page__header">
-    <h2>POS</h2>
-    <p>Modo caja para registrar ventas rápidas con control de stock y consulta de historial.</p>
+    <div>
+      <h2>POS</h2>
+      <p>Modo caja para registrar ventas rápidas con control de stock y consulta de historial.</p>
+    </div>
+    @if (canCreateSales()) {
+      <p-button
+        label="Búsqueda rápida (F2)"
+        icon="pi pi-search"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="quickSearchVisible.set(true)"
+      ></p-button>
+    }
   </header>
 
   @if (!canCreateSales() && !canReadSales()) {
@@ -16,6 +27,7 @@
         [canCreate]="canCreateSales()"
         [searchTerm]="searchTerm()"
         (searchTermChange)="searchTerm.set($event)"
+        (searchEnter)="addFirstFilteredProduct()"
         (addProduct)="addToCart($event)"
       ></app-product-browser>
 
@@ -60,6 +72,13 @@
   (visibleChange)="onVoidDialogVisibleChange($event)"
   (submitVoid)="confirmVoid($event)"
 ></app-void-sale-dialog>
+
+<app-quick-product-search-dialog
+  [visible]="quickSearchVisible()"
+  [products]="filteredProducts()"
+  (visibleChange)="quickSearchVisible.set($event)"
+  (selectProduct)="addToCart($event)"
+></app-quick-product-search-dialog>
 
 <p-toast></p-toast>
 <p-confirmdialog></p-confirmdialog>

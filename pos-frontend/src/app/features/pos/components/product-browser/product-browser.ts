@@ -24,6 +24,7 @@ export class ProductBrowser {
   @Input() searchTerm = '';
   @Output() searchTermChange = new EventEmitter<string>();
   @Output() addProduct = new EventEmitter<PosProductModel>();
+  @Output() searchEnter = new EventEmitter<void>();
 
   onSearchChange(term: string): void {
     this.searchTermChange.emit(term);
@@ -35,5 +36,9 @@ export class ProductBrowser {
     }
 
     this.addProduct.emit(product);
+  }
+
+  onSearchEnter(): void {
+    this.searchEnter.emit();
   }
 }

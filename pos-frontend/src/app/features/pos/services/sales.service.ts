@@ -26,8 +26,8 @@ export class SalesService {
   private readonly salesUrl = `${environment.apiUrl}/api/Sales`;
 
   getSales() {
-    return this.http.get<SaleModel[]>(this.salesUrl).pipe(
-      map((sales) => sales.map((sale) => this.toListItem(sale))),
+    return this.http.get<unknown>(this.salesUrl).pipe(
+      map((response) => this.extractSales(response).map((sale) => this.toListItem(sale))),
       catchError((error) => this.handleAuthError(error))
     );
   }
@@ -49,13 +49,30 @@ export class SalesService {
   private toListItem(sale: SaleModel): SaleListItemModel {
     return {
       id: sale.id,
-      status: sale.status,
+      status: sale.status ?? 'UNKNOWN',
       total: sale.total,
       createdAt: sale.createdAt,
       itemsCount: sale.items?.length ?? 0,
       userId: sale.userId,
       username: sale.username,
     };
+  }
+
+  private extractSales(response: unknown): SaleModel[] {
+    if (Array.isArray(response)) {
+      return response as SaleModel[];
+    }
+
+    const payload = response as { items?: unknown; data?: unknown };
+    if (Array.isArray(payload?.items)) {
+      return payload.items as SaleModel[];
+    }
+
+    if (Array.isArray(payload?.data)) {
+      return payload.data as SaleModel[];
+    }
+
+    return [];
   }
 
   private handleAuthError(error: HttpErrorResponse) {

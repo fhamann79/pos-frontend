@@ -41,3 +41,13 @@
     font-size: 1.2rem;
   }
 }
+
+.shortcut-hint {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+:host ::ng-deep .checkout-button {
+  width: 100%;
+  font-weight: 700;
+}
