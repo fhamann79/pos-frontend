@@ -1,0 +1,21 @@
+.sale-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  small {
+    color: var(--text-color-secondary);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.totals {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}

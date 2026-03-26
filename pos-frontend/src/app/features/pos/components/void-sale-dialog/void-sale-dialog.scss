@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+textarea {
+  width: 100%;
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

@@ -1,0 +1,65 @@
+<div class="pos-page">
+  <header class="pos-page__header">
+    <h2>POS</h2>
+    <p>Modo caja para registrar ventas rápidas con control de stock y consulta de historial.</p>
+  </header>
+
+  @if (!canCreateSales() && !canReadSales()) {
+    <p-message severity="warn" text="No tienes permisos para acceder a POS."></p-message>
+  } @else {
+    <div class="pos-grid">
+      <app-product-browser
+        class="products"
+        [products]="filteredProducts()"
+        [loading]="productsLoading()"
+        [errorMessage]="productsError()"
+        [canCreate]="canCreateSales()"
+        [searchTerm]="searchTerm()"
+        (searchTermChange)="searchTerm.set($event)"
+        (addProduct)="addToCart($event)"
+      ></app-product-browser>
+
+      @if (canCreateSales()) {
+        <app-cart-panel
+          class="cart"
+          [items]="cartItems()"
+          [notes]="notes()"
+          [canCheckout]="canCreateSales()"
+          [submitting]="submitSaleLoading()"
+          (quantityChange)="onQuantityChange($event)"
+          (priceChange)="onPriceChange($event)"
+          (removeItem)="removeItem($event)"
+          (notesChange)="notes.set($event)"
+          (checkout)="checkout()"
+        ></app-cart-panel>
+      }
+    </div>
+
+    @if (canReadSales()) {
+      <app-sales-history
+        [sales]="sales()"
+        [loading]="salesLoading()"
+        [errorMessage]="salesError()"
+        [canVoid]="canVoidSales()"
+        (viewDetail)="openDetail($event)"
+        (voidSale)="requestVoid($event)"
+      ></app-sales-history>
+    }
+  }
+</div>
+
+<app-sale-detail-dialog
+  [visible]="detailDialogVisible()"
+  [sale]="selectedSale()"
+  (visibleChange)="detailDialogVisible.set($event)"
+></app-sale-detail-dialog>
+
+<app-void-sale-dialog
+  [visible]="voidDialogVisible()"
+  [submitting]="voidSaleLoading()"
+  (visibleChange)="onVoidDialogVisibleChange($event)"
+  (submitVoid)="confirmVoid($event)"
+></app-void-sale-dialog>
+
+<p-toast></p-toast>
+<p-confirmdialog></p-confirmdialog>

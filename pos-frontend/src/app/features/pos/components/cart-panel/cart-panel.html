@@ -1,0 +1,84 @@
+<section class="card">
+  <header class="card__header">
+    <h3>Carrito</h3>
+    <span>Revisa cantidades, precio unitario y completa la venta.</span>
+  </header>
+
+  <p-table [value]="items" responsiveLayout="scroll" size="small">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>P. Unit.</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.productName }}</td>
+        <td>
+          <p-inputNumber
+            [ngModel]="item.quantity"
+            (ngModelChange)="onQuantityChange(item.productId, $event)"
+            [min]="1"
+            [showButtons]="true"
+            [useGrouping]="false"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="0"
+            inputStyleClass="qty-input"
+          ></p-inputNumber>
+        </td>
+        <td>
+          <p-inputNumber
+            mode="currency"
+            currency="USD"
+            [ngModel]="item.unitPrice"
+            (ngModelChange)="onPriceChange(item.productId, $event)"
+            [min]="0"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            inputStyleClass="price-input"
+          ></p-inputNumber>
+        </td>
+        <td>{{ item.lineSubtotal | currency: 'USD' }}</td>
+        <td>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            ariaLabel="Eliminar"
+            (onClick)="removeItem.emit(item.productId)"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="totals">
+    <div>
+      <span>Subtotal</span>
+      <strong>{{ subtotal | currency: 'USD' }}</strong>
+    </div>
+    <div>
+      <span>Total</span>
+      <strong class="total">{{ total | currency: 'USD' }}</strong>
+    </div>
+  </div>
+
+  <textarea
+    pInputTextarea
+    rows="3"
+    placeholder="Notas de la venta (opcional)"
+    [ngModel]="notes"
+    (ngModelChange)="notesChange.emit($event)"
+  ></textarea>
+
+  <p-button
+    label="Finalizar venta"
+    icon="pi pi-check"
+    [disabled]="!canCheckout || items.length === 0 || submitting"
+    [loading]="submitting"
+    (onClick)="checkout.emit()"
+  ></p-button>
+</section>

@@ -1,0 +1,61 @@
+<section class="card">
+  <header class="card__header">
+    <h3>Productos</h3>
+    <span>Selecciona productos activos para agregar al carrito.</span>
+  </header>
+
+  <div class="search-row">
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        placeholder="Buscar producto"
+        [ngModel]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+      />
+    </span>
+  </div>
+
+  @if (errorMessage) {
+    <p-message severity="error" [text]="errorMessage"></p-message>
+  }
+
+  <p-table [value]="products" [loading]="loading" [paginator]="true" [rows]="8" responsiveLayout="scroll" size="small">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th class="actions-cell">Acción</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>
+          <div class="product-name">{{ product.name }}</div>
+          @if (product.categoryName) {
+            <small class="muted">{{ product.categoryName }}</small>
+          }
+        </td>
+        <td>{{ product.price | currency: 'USD' }}</td>
+        <td>
+          @if (product.stock > 0) {
+            <p-tag severity="success" [value]="product.stock.toString()"></p-tag>
+          } @else {
+            <p-tag severity="danger" value="Sin stock"></p-tag>
+          }
+        </td>
+        <td class="actions-cell">
+          <p-button
+            icon="pi pi-plus"
+            label="Agregar"
+            size="small"
+            [disabled]="!canCreate"
+            (onClick)="onAddProduct(product)"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

@@ -1,0 +1,41 @@
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.card__header {
+  margin-bottom: 1rem;
+
+  h3 {
+    margin: 0;
+  }
+
+  span {
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+.search-row {
+  margin-bottom: 0.8rem;
+
+  .p-input-icon-left,
+  input {
+    width: 100%;
+  }
+}
+
+.actions-cell {
+  text-align: right;
+  width: 8rem;
+}
+
+.product-name {
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--text-color-secondary);
+}
