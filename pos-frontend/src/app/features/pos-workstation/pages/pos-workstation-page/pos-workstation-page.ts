@@ -237,6 +237,9 @@ export class PosWorkstationPage implements OnInit, OnDestroy {
         this.cart.set([]);
         this.notes.set('');
         this.messageService.add({ severity: 'success', summary: 'Venta registrada', detail: 'La venta fue creada correctamente.' });
+        if (this.canSell) {
+          this.loadProducts();
+        }
         if (this.canReadReports) {
           this.loadSales();
         }
@@ -283,6 +286,9 @@ export class PosWorkstationPage implements OnInit, OnDestroy {
         this.voidVisible.set(false);
         this.saleToVoid.set(null);
         this.messageService.add({ severity: 'success', summary: 'Venta anulada', detail: 'La venta fue anulada correctamente.' });
+        if (this.canSell) {
+          this.loadProducts();
+        }
         this.loadSales();
         if (this.selectedSale()?.id === sale.id) {
           this.openSaleDetail(sale.id);

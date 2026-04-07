@@ -15,12 +15,12 @@
   } @else {
     <ul class="sales-list">
       @for (sale of sales; track sale.id) {
-        <li>
+        <li [class.sale-voided]="sale.isVoided">
           <div>
             <strong>#{{ sale.id }}</strong>
             <small>{{ sale.createdAt | date: 'short' }}</small>
             <small>{{ sale.total | currency: 'USD' }}</small>
-            <small>{{ sale.status }}</small>
+            <small class="status" [class.status--voided]="sale.isVoided">{{ sale.isVoided ? 'Anulada' : sale.status }}</small>
             @if (sale.createdBy) {
               <small>{{ sale.createdBy }}</small>
             }

@@ -36,6 +36,10 @@ export class PosWorkstationService {
       return 'Stock insuficiente para completar la venta.';
     }
 
+    if (code === 'SALE_ALREADY_VOIDED') {
+      return 'La venta ya fue anulada.';
+    }
+
     if (code === 'PRODUCT_NOT_FOUND') {
       return 'Uno de los productos ya no existe.';
     }
@@ -60,7 +64,7 @@ export class PosWorkstationService {
       status: this.readString(row, ['status'], 'UNKNOWN'),
       total: this.readNumber(row, ['total', 'grandTotal'], 0),
       createdBy: this.readString(row, ['createdBy', 'username', 'userName'], null),
-      isVoided: this.readBoolean(row, ['isVoided', 'voided'], false),
+      isVoided: this.readBoolean(row, ['isVoided', 'voided'], this.isVoidedStatus(this.readString(row, ['status'], 'UNKNOWN'))),
     };
   }
 
@@ -77,7 +81,7 @@ export class PosWorkstationService {
       subtotal: this.readNumber(row, ['subtotal'], 0),
       total: this.readNumber(row, ['total', 'grandTotal'], 0),
       createdBy: this.readString(row, ['createdBy', 'username', 'userName'], null),
-      isVoided: this.readBoolean(row, ['isVoided', 'voided'], false),
+      isVoided: this.readBoolean(row, ['isVoided', 'voided'], this.isVoidedStatus(this.readString(row, ['status'], 'UNKNOWN'))),
       items,
     };
   }
@@ -96,14 +100,47 @@ export class PosWorkstationService {
 
   private readErrorCode(error: HttpErrorResponse): string {
     if (typeof error.error === 'string') {
-      return error.error;
+      return this.normalizeCode(error.error);
     }
 
-    if (typeof error.error?.code === 'string') {
-      return error.error.code;
+    const payload = this.asRecord(error.error);
+    const directCode = payload?.['code'];
+
+    if (typeof directCode === 'string') {
+      return this.normalizeCode(directCode);
+    }
+
+    const errorCode = payload?.['errorCode'];
+    if (typeof errorCode === 'string') {
+      return this.normalizeCode(errorCode);
+    }
+
+    const errors = payload?.['errors'];
+    if (Array.isArray(errors) && errors.length > 0) {
+      const firstError = this.asRecord(errors[0]);
+      const nestedCode = firstError?.['code'];
+
+      if (typeof nestedCode === 'string') {
+        return this.normalizeCode(nestedCode);
+      }
+    }
+
+    const message = payload?.['message'];
+    if (typeof message === 'string') {
+      const normalizedMessage = this.normalizeCode(message);
+      if (normalizedMessage.includes('SALE_ALREADY_VOIDED') || normalizedMessage.includes('ALREADY VOIDED')) {
+        return 'SALE_ALREADY_VOIDED';
+      }
+      if (normalizedMessage.includes('INSUFFICIENT_STOCK') || normalizedMessage.includes('INSUFFICIENT STOCK')) {
+        return 'INSUFFICIENT_STOCK';
+      }
     }
 
     return '';
+  }
+
+  private normalizeCode(code: string): string {
+    return code.trim().toUpperCase();
   }
 
   private asRecord(value: unknown): Record<string, unknown> | null {
@@ -140,6 +177,11 @@ export class PosWorkstationService {
     }
 
     return fallback;
+  }
+
+  private isVoidedStatus(status: string): boolean {
+    const normalized = status.toUpperCase();
+    return normalized.includes('VOID') || normalized.includes('ANUL');
   }
 
   private readNumber(record: Record<string, unknown> | null, keys: string[], fallback: number): number {
