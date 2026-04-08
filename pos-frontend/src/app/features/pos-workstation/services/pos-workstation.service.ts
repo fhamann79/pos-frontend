@@ -57,14 +57,16 @@ export class PosWorkstationService {
 
   private toSaleListItem(source: unknown): SaleListItem {
     const row = this.asRecord(source);
+    const status = this.readString(row, ['status', 'state'], 'UNKNOWN');
+    const isVoided = this.isVoided(row);
 
     return {
       id: this.readNumber(row, ['id', 'saleId'], 0),
       createdAt: this.readString(row, ['createdAt', 'createdOn', 'date'], ''),
-      status: this.readString(row, ['status'], 'UNKNOWN'),
+      status: isVoided ? 'Anulada' : status,
       total: this.readNumber(row, ['total', 'grandTotal'], 0),
       createdBy: this.readString(row, ['createdBy', 'username', 'userName'], null),
-      isVoided: this.readBoolean(row, ['isVoided', 'voided'], this.isVoidedStatus(this.readString(row, ['status'], 'UNKNOWN'))),
+      isVoided,
     };
   }
 
@@ -72,16 +74,18 @@ export class PosWorkstationService {
     const row = this.asRecord(source);
     const itemsRaw = row?.['items'];
     const items = Array.isArray(itemsRaw) ? itemsRaw.map((item) => this.toSaleItem(item)) : [];
+    const status = this.readString(row, ['status', 'state'], 'UNKNOWN');
+    const isVoided = this.isVoided(row);
 
     return {
       id: this.readNumber(row, ['id', 'saleId'], 0),
       createdAt: this.readString(row, ['createdAt', 'createdOn', 'date'], ''),
-      status: this.readString(row, ['status'], 'UNKNOWN'),
+      status: isVoided ? 'Anulada' : status,
       notes: this.readString(row, ['notes'], null),
       subtotal: this.readNumber(row, ['subtotal'], 0),
       total: this.readNumber(row, ['total', 'grandTotal'], 0),
       createdBy: this.readString(row, ['createdBy', 'username', 'userName'], null),
-      isVoided: this.readBoolean(row, ['isVoided', 'voided'], this.isVoidedStatus(this.readString(row, ['status'], 'UNKNOWN'))),
+      isVoided,
       items,
     };
   }
@@ -100,19 +104,24 @@ export class PosWorkstationService {
 
   private readErrorCode(error: HttpErrorResponse): string {
     if (typeof error.error === 'string') {
-      return this.normalizeCode(error.error);
+      return this.detectKnownBusinessCode(error.error);
     }
 
     const payload = this.asRecord(error.error);
     const directCode = payload?.['code'];
 
     if (typeof directCode === 'string') {
-      return this.normalizeCode(directCode);
+      return this.detectKnownBusinessCode(directCode);
     }
 
     const errorCode = payload?.['errorCode'];
     if (typeof errorCode === 'string') {
-      return this.normalizeCode(errorCode);
+      return this.detectKnownBusinessCode(errorCode);
+    }
+
+    const domainCode = payload?.['domainCode'];
+    if (typeof domainCode === 'string') {
+      return this.detectKnownBusinessCode(domainCode);
     }
 
     const errors = payload?.['errors'];
@@ -121,22 +130,63 @@ export class PosWorkstationService {
       const nestedCode = firstError?.['code'];
 
       if (typeof nestedCode === 'string') {
-        return this.normalizeCode(nestedCode);
+        return this.detectKnownBusinessCode(nestedCode);
+      }
+    }
+
+    const validationErrors = this.asRecord(errors);
+    if (validationErrors) {
+      const combinedValues = Object.values(validationErrors)
+        .filter((value): value is string[] => Array.isArray(value))
+        .flat()
+        .join(' ');
+      const matched = this.detectKnownBusinessCode(combinedValues);
+      if (matched) {
+        return matched;
       }
     }
 
     const message = payload?.['message'];
     if (typeof message === 'string') {
-      const normalizedMessage = this.normalizeCode(message);
-      if (normalizedMessage.includes('SALE_ALREADY_VOIDED') || normalizedMessage.includes('ALREADY VOIDED')) {
-        return 'SALE_ALREADY_VOIDED';
+      const matched = this.detectKnownBusinessCode(message);
+      if (matched) {
+        return matched;
       }
-      if (normalizedMessage.includes('INSUFFICIENT_STOCK') || normalizedMessage.includes('INSUFFICIENT STOCK')) {
-        return 'INSUFFICIENT_STOCK';
+    }
+
+    const title = payload?.['title'];
+    if (typeof title === 'string') {
+      const matched = this.detectKnownBusinessCode(title);
+      if (matched) {
+        return matched;
+      }
+    }
+
+    const detail = payload?.['detail'];
+    if (typeof detail === 'string') {
+      const matched = this.detectKnownBusinessCode(detail);
+      if (matched) {
+        return matched;
       }
     }
 
     return '';
+  }
+
+  private detectKnownBusinessCode(value: string): string {
+    const normalized = this.normalizeCode(value);
+    if (normalized.includes('INSUFFICIENT_STOCK') || normalized.includes('INSUFFICIENT STOCK')) {
+      return 'INSUFFICIENT_STOCK';
+    }
+    if (
+      normalized.includes('SALE_ALREADY_VOIDED') ||
+      normalized.includes('ALREADY VOIDED') ||
+      normalized.includes('YA FUE ANULADA')
+    ) {
+      return 'SALE_ALREADY_VOIDED';
+    }
+
+    return normalized;
   }
 
   private normalizeCode(code: string): string {
@@ -181,7 +231,31 @@ export class PosWorkstationService {
 
   private isVoidedStatus(status: string): boolean {
     const normalized = status.toUpperCase();
-    return normalized.includes('VOID') || normalized.includes('ANUL');
+    return normalized.includes('VOID') || normalized.includes('ANUL') || normalized.includes('CANCEL');
+  }
+
+  private isVoided(record: Record<string, unknown> | null): boolean {
+    if (!record) {
+      return false;
+    }
+
+    const flag = this.readBoolean(record, ['isVoided', 'voided'], false);
+    if (flag) {
+      return true;
+    }
+
+    const voidedAt = record['voidedAt'];
+    if (typeof voidedAt === 'string' && voidedAt.trim().length > 0) {
+      return true;
+    }
+
+    const status = this.readString(record, ['status', 'state'], '');
+    if (status && this.isVoidedStatus(status)) {
+      return true;
+    }
+
+    const statusCode = this.readNumber(record, ['statusCode', 'stateCode'], -1);
+    return statusCode === 3;
   }
 
   private readNumber(record: Record<string, unknown> | null, keys: string[], fallback: number): number {
